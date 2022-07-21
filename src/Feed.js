@@ -1,8 +1,18 @@
-import React from 'react'
+import React,{useState,useEffect} from 'react'
 import './Feed.css'
 import TweetBox from './TweetBox'
 import Post from './Post'
+import db from './firebase'
+import FlipMove from "react-flip-move";
+
 function Feed() {
+  const [posts,setPosts]=useState([])
+
+  useEffect(() => {
+    db.collection('posts').onSnapshot(snapshot=>(
+      setPosts(snapshot.docs.map(doc=>doc.data()))
+    ))
+  }, []);
   return (
     <div className='feed'>
         <div className='feed__header'>
@@ -11,16 +21,19 @@ function Feed() {
 
         {/* tweetbox */}
         <TweetBox/>
-        <Post displayName="Amit Kewot"
-          username="AmitKewot"
-          verified={true}
-          text="YOO its working"
-          image="https://storage.googleapis.com/gweb-uniblog-publish-prod/original_images/tenor_1.gif"
-          avatar="https://pbs.twimg.com/profile_images/592668340553920512/1_ODVnxf_400x400.jpg"
-        />
-        <Post/>
-        <Post/>
-        <Post/>
+        <FlipMove>
+          {posts.map(post=>(
+            <Post 
+              key={post.text}
+              displayName={post.displayName}
+              username={post.username}
+              verified={post.verified}
+              text={post.text}
+              avatar={post.avatar}
+              image={post.image}
+              />
+        ) )}
+        </FlipMove>
     </div>
   )
 }
